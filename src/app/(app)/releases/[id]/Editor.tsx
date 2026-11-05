@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useEffect, useMemo, useOptimistic, useState, useTransition } from "react";
 import { ArrowDown, ArrowUp, Check, ChevronLeft, Copy, ExternalLink, Lock, Plus, Send, Trash2, Undo2, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
 import { saveRelease, transition } from "@/app/actions";
 import { CreatedBy, StatusBadge } from "@/components/StatusBadge";
@@ -32,6 +32,15 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
   const [flash, setFlash] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   // Status flips instantly; reverts automatically if the server rejects it.
   const [status, setOptimisticStatus] = useOptimistic(release.status);
+
+  // When the server copy changes (after a save or status change), adopt it without remounting,
+  // so confirmation messages survive.
+  useEffect(() => {
+    setTitle(release.title);
+    setVersion(release.version);
+    setSummary(release.summary);
+    setItems(release.items);
+  }, [release.updated_at]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const locked = status === "sent";
   const manager = role === "manager";

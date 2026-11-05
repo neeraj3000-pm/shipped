@@ -10,7 +10,6 @@ export default async function ReleasePage({ params }: { params: Promise<{ id: st
   if (!release) notFound();
   return (
     <Editor
-      key={release.updated_at}
       release={release}
       activity={activity}
       role={user.role}
