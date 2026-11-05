@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --color-navy: #1b365d;
+  --color-navy-900: #10223d;
+  --color-brand: #005a9c;
+  --color-brand-600: #004a80;
+  --color-sky: #60c1e5;
+  --color-ice: #a0e0ef;
+  --color-ice-50: #eef9fc;
+  --color-ink: #0f172a;
+  --color-line: #e6eaf0;
+  --color-canvas: #f6f8fb;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+html { color-scheme: light; }
+body { background: var(--color-canvas); color: var(--color-ink); -webkit-font-smoothing: antialiased; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.headline { letter-spacing: -0.035em; line-height: 1.05; font-weight: 800; }
+.field {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--color-line);
+  background: white;
+  padding: 0.55rem 0.75rem;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+.field:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px rgb(0 90 156 / 0.12); }
+.btn { display: inline-flex; align-items: center; gap: .45rem; border-radius: 10px; padding: .55rem .95rem; font-weight: 600; font-size: .9rem; transition: background .15s, border-color .15s, opacity .15s; white-space: nowrap; }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn-primary { background: var(--color-navy); color: white; }
+.btn-primary:hover:not(:disabled) { background: var(--color-navy-900); }
+.btn-brand { background: var(--color-brand); color: white; }
+.btn-brand:hover:not(:disabled) { background: var(--color-brand-600); }
+.btn-ghost { border: 1px solid var(--color-line); background: white; color: var(--color-navy); }
+.btn-ghost:hover:not(:disabled) { border-color: #cbd5e1; }
+.btn-outline { border: 1.5px solid var(--color-brand); color: var(--color-brand); background: white; }
+.btn-outline:hover:not(:disabled) { background: var(--color-ice-50); }
+.card { background: white; border: 1px solid var(--color-line); border-radius: 16px; }
