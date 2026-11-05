@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, useTransition } from "react";
-import { ArrowDown, ArrowUp, Check, ChevronLeft, Copy, ExternalLink, Lock, Plus, Send, Trash2, Undo2, AlertTriangle, ShieldCheck } from "lucide-react";
+import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { ArrowDown, ArrowUp, Check, ChevronLeft, Copy, ExternalLink, Lock, Plus, Send, Trash2, Undo2, AlertTriangle, ShieldCheck, Loader2 } from "lucide-react";
 import { saveRelease, transition } from "@/app/actions";
 import { CreatedBy, StatusBadge } from "@/components/StatusBadge";
 import { emailFor, fmtDate } from "@/lib/format";
@@ -28,9 +28,12 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
   const [summary, setSummary] = useState(release.summary);
   const [items, setItems] = useState<Item[]>(release.items);
   const [pending, start] = useTransition();
+  const [busy, setBusy] = useState<string | null>(null);
   const [flash, setFlash] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+  // Status flips instantly; reverts automatically if the server rejects it.
+  const [status, setOptimisticStatus] = useOptimistic(release.status);
 
-  const locked = release.status === "sent";
+  const locked = status === "sent";
   const manager = role === "manager";
   const clientName = release.clients?.name ?? "Client";
 
@@ -48,18 +51,27 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
     setTimeout(() => setFlash(null), 3500);
   };
 
-  const save = () =>
+  const save = () => {
+    setBusy("save");
     start(async () => {
       const r = await saveRelease(release.id, { title, version, summary, items });
+      setBusy(null);
       if (r.ok) show("ok", r.message ?? "Saved.");
       else show("err", r.error);
     });
+  };
 
-  const act = (a: Parameters<typeof transition>[1]) =>
+  const TARGET = { submit: "in_review", approve: "approved", request_changes: "draft", mark_sent: "sent" } as const;
+  const act = (a: keyof typeof TARGET) => {
+    setBusy(a);
     start(async () => {
+      setOptimisticStatus(TARGET[a]);
       const r = await transition(release.id, a);
+      setBusy(null);
       if (!r.ok) show("err", r.error);
     });
+  };
+  const spin = (key: string, icon: React.ReactNode) => (busy === key ? <Loader2 size={16} className="animate-spin" /> : icon);
 
   const copyEmail = async () => {
     const { full } = emailFor({ version, title, summary, items }, clientName, portalUrl);
@@ -84,42 +96,42 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
   if (dirty && !locked) {
     actions.push(
       <button key="save" className="btn btn-primary" onClick={save} disabled={pending}>
-        <Check size={16} /> Save changes
+        {spin("save", <Check size={16} />)} {busy === "save" ? "Saving…" : "Save changes"}
       </button>,
     );
   } else {
-    if (release.status === "draft")
+    if (status === "draft")
       actions.push(
         <button key="submit" className="btn btn-primary" onClick={() => act("submit")} disabled={pending}>
-          <Send size={16} /> Submit for review
+          {spin("submit", <Send size={16} />)} Submit for review
         </button>,
       );
-    if (release.status === "in_review" && manager) {
+    if (status === "in_review" && manager) {
       actions.push(
         <button key="rc" className="btn btn-ghost" onClick={() => act("request_changes")} disabled={pending}>
-          <Undo2 size={16} /> Request changes
+          {spin("request_changes", <Undo2 size={16} />)} Request changes
         </button>,
         <button key="approve" className="btn bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => act("approve")} disabled={pending}>
-          <ShieldCheck size={16} /> Approve
+          {spin("approve", <ShieldCheck size={16} />)} Approve
         </button>,
       );
     }
-    if (release.status === "in_review" && !manager)
+    if (status === "in_review" && !manager)
       actions.push(
         <span key="wait" className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
           <Lock size={14} /> Only a manager can approve
         </span>,
       );
-    if (release.status === "approved" || release.status === "sent")
+    if (status === "approved" || status === "sent")
       actions.push(
         <button key="copy" className="btn btn-outline" onClick={copyEmail}>
           <Copy size={16} /> Copy as email
         </button>,
       );
-    if (release.status === "approved" && manager)
+    if (status === "approved" && manager)
       actions.push(
         <button key="sent" className="btn btn-brand" onClick={() => act("mark_sent")} disabled={pending}>
-          <Send size={16} /> Mark as sent
+          {spin("mark_sent", <Send size={16} />)} Mark as sent
         </button>,
       );
   }
@@ -140,8 +152,8 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
 
         {/* Status bar */}
         <div className="card mb-8 flex flex-wrap items-center gap-3 p-3 pl-4">
-          <StatusBadge status={release.status} large />
-          <p className="min-w-0 flex-1 text-sm text-slate-600">{dirty && !locked ? "You have unsaved changes." : NEXT_STEP[release.status][role]}</p>
+          <StatusBadge status={status} large />
+          <p className="min-w-0 flex-1 text-sm text-slate-600">{dirty && !locked ? "You have unsaved changes." : NEXT_STEP[status][role]}</p>
           <div className="flex flex-wrap gap-2">{actions}</div>
         </div>
 
@@ -151,7 +163,7 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
           </div>
         )}
 
-        {release.status === "approved" && !dirty && (
+        {status === "approved" && !dirty && (
           <p className="mb-6 text-sm text-slate-500">Editing an approved release clears the approval and sends it back to review.</p>
         )}
 
@@ -256,7 +268,7 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
           <div className="sticky bottom-4 mt-8 flex justify-end">
             <div className="card flex items-center gap-3 p-2 pl-4 shadow-lg">
               <span className="text-sm text-slate-600">Unsaved changes</span>
-              <button className="btn btn-primary" onClick={save} disabled={pending}><Check size={16} /> Save</button>
+              <button className="btn btn-primary" onClick={save} disabled={pending}>{spin("save", <Check size={16} />)} {busy === "save" ? "Saving…" : "Save"}</button>
             </div>
           </div>
         )}

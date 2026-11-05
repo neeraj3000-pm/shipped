@@ -19,6 +19,7 @@ async function ensureUser(u) {
   } else {
     await sb.auth.admin.updateUserById(user.id, { password: PASSWORD, email_confirm: true });
   }
+  await sb.auth.admin.updateUserById(user.id, { app_metadata: { name: u.name, role: u.role } });
   const { error } = await sb.from("profiles").upsert({ id: user.id, name: u.name, role: u.role });
   if (error) throw error;
   console.log("user", u.email);

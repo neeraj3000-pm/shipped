@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { authClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/session";
-import { addClient, getRelease, logActivity, setStatus, updateContent } from "@/lib/store";
+import { addClient, logActivity, moveStatus, updateContent } from "@/lib/store";
 import type { Item } from "@/lib/types";
 
 export async function login(_: unknown, form: FormData) {
@@ -40,33 +40,27 @@ export async function saveRelease(
   }
 }
 
-export async function transition(id: string, action: "submit" | "approve" | "request_changes" | "mark_sent"): Promise<Result> {
-  const u = await requireUser();
-  const r = await getRelease(id);
-  if (!r) return { ok: false, error: "Release not found." };
-  const manager = u.role === "manager";
-  const now = new Date().toISOString();
+const RULES = {
+  submit: { from: "draft", to: "in_review", manager: false, log: "Submitted for review" },
+  approve: { from: "in_review", to: "approved", manager: true, log: "Approved" },
+  request_changes: { from: "in_review", to: "draft", manager: true, log: "Requested changes – back to draft" },
+  mark_sent: { from: "approved", to: "sent", manager: true, log: "Marked as sent to client" },
+} as const;
 
-  if (action === "submit") {
-    if (r.status !== "draft") return { ok: false, error: "Only drafts can be submitted." };
-    await setStatus(id, "in_review", u.name);
-    await logActivity(id, u.name, "Submitted for review");
-  } else if (action === "approve") {
-    if (!manager) return { ok: false, error: "Only a manager can approve." };
-    if (r.status !== "in_review") return { ok: false, error: "Only releases in review can be approved." };
-    await setStatus(id, "approved", u.name, { approved_by: u.name, approved_at: now });
-    await logActivity(id, u.name, "Approved");
-  } else if (action === "request_changes") {
-    if (!manager) return { ok: false, error: "Only a manager can request changes." };
-    if (r.status !== "in_review") return { ok: false, error: "Only releases in review can be sent back." };
-    await setStatus(id, "draft", u.name);
-    await logActivity(id, u.name, "Requested changes – back to draft");
-  } else if (action === "mark_sent") {
-    if (!manager) return { ok: false, error: "Only a manager can mark a release as sent." };
-    if (r.status !== "approved") return { ok: false, error: "Only approved releases can be marked as sent." };
-    await setStatus(id, "sent", u.name, { sent_at: now });
-    await logActivity(id, u.name, "Marked as sent to client");
-  }
+export async function transition(id: string, action: keyof typeof RULES): Promise<Result> {
+  const u = await requireUser();
+  const rule = RULES[action];
+  if (rule.manager && u.role !== "manager") return { ok: false, error: "Only a manager can do this." };
+  const now = new Date().toISOString();
+  const extra =
+    action === "approve" ? { approved_by: u.name, approved_at: now }
+    : action === "mark_sent" ? { sent_at: now }
+    : action === "request_changes" ? { approved_by: null, approved_at: null }
+    : {};
+  // Conditional update: succeeds only if the release is still in the expected status.
+  const moved = await moveStatus(id, rule.from, rule.to, extra);
+  if (!moved) return { ok: false, error: "This release changed in the meantime. Refresh and try again." };
+  await logActivity(id, u.name, rule.log);
   revalidatePath(`/releases/${id}`);
   revalidatePath("/");
   return { ok: true };

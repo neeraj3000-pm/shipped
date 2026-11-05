@@ -19,9 +19,10 @@ export async function middleware(req: NextRequest) {
       },
     },
   );
-  const { data } = await supabase.auth.getUser();
+  // getClaims verifies the JWT locally (refreshing it only when expired): no round trip per page.
+  const { data } = await supabase.auth.getClaims();
   const path = req.nextUrl.pathname;
-  if (!data.user && !PUBLIC.some((p) => path.startsWith(p))) {
+  if (!data?.claims && !PUBLIC.some((p) => path.startsWith(p))) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
     url.search = "";

@@ -127,18 +127,24 @@ export async function updateContent(
   if (fields.items !== undefined) patch.items = cleanItems(fields.items);
   const reopened = cur.status === "approved";
   if (reopened) Object.assign(patch, { status: "in_review", approved_by: null, approved_at: null });
-  const { data, error } = await db().from("releases").update(patch).eq("id", id).select(SELECT).single();
+  const [{ data, error }] = await Promise.all([
+    db().from("releases").update(patch).eq("id", id).neq("status", "sent").select(SELECT).single(),
+    logActivity(id, actor, reopened ? "Edited after approval – sent back to review" : "Edited"),
+  ]);
   if (error) throw new Error(error.message);
-  await logActivity(id, actor, reopened ? "Edited after approval – sent back to review" : "Edited");
   return { release: data as Release, reopened };
 }
 
-export async function setStatus(id: string, status: Status, actor: string, extra: Record<string, unknown> = {}) {
-  const { error } = await db()
+/** Atomic status change: only applies if the current status is `from`. One round trip. */
+export async function moveStatus(id: string, from: Status, to: Status, extra: Record<string, unknown> = {}) {
+  const { data, error } = await db()
     .from("releases")
-    .update({ status, updated_at: new Date().toISOString(), ...extra })
-    .eq("id", id);
+    .update({ status: to, updated_at: new Date().toISOString(), ...extra })
+    .eq("id", id)
+    .eq("status", from)
+    .select("id");
   if (error) throw new Error(error.message);
+  return (data?.length ?? 0) > 0;
 }
 
 export async function portalData(token: string) {
