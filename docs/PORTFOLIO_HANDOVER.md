@@ -39,12 +39,13 @@ For visitors who came from the portfolio, the `/about` page shows a "← Portfol
 ### Card content (use exactly, in SyncUp's structure)
 
 **Banner image:** download it and commit it into the portfolio repo next to SyncUp's banner. Don't hotlink.
-- Dark banner (matches SyncUp's dark card), 2880×1330 at 2x: https://shipped-release-notes.vercel.app/portfolio/shipped-banner.png
+- Main banner (dark, matches the site), 2880×1120 at 2x: https://shipped-release-notes.vercel.app/portfolio/shipped-banner.png
 - Alternatives if the layout needs another crop:
+  - https://shipped-release-notes.vercel.app/portfolio/shipped-portal.png (client portal, the most distinctive screen, 2x)
+  - https://shipped-release-notes.vercel.app/portfolio/shipped-dashboard.png (app dashboard, 2x)
   - https://shipped-release-notes.vercel.app/portfolio/shipped-og.png (1200×630, simple branded card)
-  - https://shipped-release-notes.vercel.app/portfolio/shipped-dashboard.png (app dashboard screenshot, 2x)
-  - https://shipped-release-notes.vercel.app/portfolio/shipped-hero-light.png (light hero, 2x)
 - **Alt text:** "Shipped: Claude drafts release notes for each client; Shipped routes them through approval."
+- **Visual note:** Shipped now uses a dark, atmospheric style (deep navy-black, sky-blue glow `#60C1E5`, wide Unbounded display type). If SyncUp's card banner sits on a dark background, Shipped's will match naturally. Keep the card body itself in the portfolio's own style, as for SyncUp.
 
 **Eyebrow tag:** `LIVE PRODUCT · PRD TO PRODUCTION, SOLO`
 
