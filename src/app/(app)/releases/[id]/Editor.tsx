@@ -10,10 +10,10 @@ import { AutoTextarea } from "@/components/AutoTextarea";
 import { SECTIONS, type Activity, type Item, type Release, type Role, type Section } from "@/lib/types";
 
 const SECTION_TINT: Record<Section, string> = {
-  new: "bg-ice-50 text-brand",
-  improved: "bg-sky-50 text-sky-800",
-  fixed: "bg-emerald-50 text-emerald-800",
-  known_issue: "bg-amber-50 text-amber-800",
+  new: "bg-sky/15 text-sky",
+  improved: "bg-ice/10 text-ice",
+  fixed: "bg-emerald-400/10 text-emerald-300",
+  known_issue: "bg-amber-400/10 text-amber-300",
 };
 
 const NEXT_STEP: Record<Release["status"], { member: string; manager: string }> = {
@@ -125,14 +125,14 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
         <button key="rc" className="btn btn-ghost" onClick={() => act("request_changes")} disabled={pending}>
           {spin("request_changes", <Undo2 size={16} />)} Request changes
         </button>,
-        <button key="approve" className="btn bg-emerald-600 text-white hover:bg-emerald-700" onClick={() => act("approve")} disabled={pending}>
+        <button key="approve" className="btn btn-success" onClick={() => act("approve")} disabled={pending}>
           {spin("approve", <ShieldCheck size={16} />)} Approve
         </button>,
       );
     }
     if (status === "in_review" && !manager)
       actions.push(
-        <span key="wait" className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
+        <span key="wait" className="inline-flex items-center gap-1.5 rounded-lg bg-amber-400/10 px-3 py-2 text-sm font-medium text-amber-300">
           <Lock size={14} /> Only a manager can approve
         </span>,
       );
@@ -154,21 +154,21 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
     <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_300px]">
       <div className="min-w-0">
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center gap-2 text-sm text-slate-500">
-          <Link href="/" className="inline-flex items-center gap-1 font-medium text-navy hover:underline">
+        <nav className="mb-6 flex items-center gap-2 text-sm text-muted">
+          <Link href="/" className="inline-flex items-center gap-1 font-medium text-fg hover:underline">
             <ChevronLeft size={15} /> Releases
           </Link>
           <span>›</span>
-          <span className="font-medium text-navy">{clientName}</span>
+          <span className="font-medium text-fg">{clientName}</span>
           <span>›</span>
-          <span className="font-semibold text-navy underline underline-offset-4">v{version || "—"}</span>
+          <span className="font-semibold text-fg underline underline-offset-4">v{version || "—"}</span>
         </nav>
 
         {/* Status bar */}
         <div className="card z-20 mb-8 flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:pl-4 lg:sticky lg:top-20 lg:shadow-[0_8px_24px_-16px_rgb(27_54_93/0.35)]">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <span key={status} className="animate-pop inline-flex shrink-0"><StatusBadge status={status} large /></span>
-            <p className="min-w-0 text-sm text-slate-600">{dirty && !locked ? "You have unsaved changes." : NEXT_STEP[status][role]}</p>
+            <p className="min-w-0 text-sm text-muted">{dirty && !locked ? "You have unsaved changes." : NEXT_STEP[status][role]}</p>
           </div>
           <div className="flex flex-wrap gap-2 [&>*]:flex-1 sm:[&>*]:flex-none [&>button]:justify-center">{actions}</div>
         </div>
@@ -176,14 +176,14 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
         {flash && (
           <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4">
             <div role="status" aria-live="polite"
-              className={`animate-toast flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold shadow-xl ${flash.kind === "ok" ? "bg-navy text-white" : "bg-red-600 text-white"}`}>
-              {flash.kind === "ok" ? <Check size={16} className="text-ice" /> : <AlertTriangle size={16} />} {flash.text}
+              className={`animate-toast flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold shadow-2xl ${flash.kind === "ok" ? "bg-fg text-pill" : "bg-red-500 text-white"}`}>
+              {flash.kind === "ok" ? <Check size={16} className="text-emerald-600" /> : <AlertTriangle size={16} />} {flash.text}
             </div>
           </div>
         )}
 
         {status === "approved" && !dirty && (
-          <p className="mb-6 text-sm text-slate-500">Editing an approved release clears the approval and sends it back to review.</p>
+          <p className="mb-6 text-sm text-muted">Editing an approved release clears the approval and sends it back to review.</p>
         )}
 
         {/* Headline */}
@@ -192,16 +192,16 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
           onChange={(e) => setTitle(e.target.value)}
           disabled={locked}
           placeholder="Release title"
-          className="headline block w-full resize-none bg-transparent text-[2.1rem] text-ink outline-none placeholder:text-slate-300 focus:bg-white/60 sm:text-5xl"
+          className="headline block w-full resize-none rounded-2xl bg-transparent text-[1.75rem] text-fg outline-none placeholder:text-faint focus:bg-white/[0.03] sm:text-4xl"
         />
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label className="inline-flex items-stretch overflow-hidden rounded-md border border-ice bg-ice-50 text-sm font-bold text-brand">
-            <span className="border-r border-ice px-2 py-1">v</span>
+          <label className="inline-flex items-stretch overflow-hidden rounded-full bg-fg text-sm font-bold text-pill">
+            <span className="py-1 pl-3">v</span>
             <input value={version} onChange={(e) => setVersion(e.target.value)} disabled={locked}
-              className="w-20 bg-transparent px-2 py-1 outline-none" aria-label="Version" />
+              className="w-16 bg-transparent py-1 pl-0.5 pr-3 outline-none" aria-label="Version" />
           </label>
-          <span className="text-sm font-semibold text-brand">for {clientName}</span>
+          <span className="text-sm font-semibold text-sky">for {clientName}</span>
         </div>
 
         <AutoTextarea
@@ -209,7 +209,7 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
           onChange={(e) => setSummary(e.target.value)}
           disabled={locked}
           placeholder="A one or two sentence summary for the client…"
-          className="mt-6 block w-full resize-none rounded-lg bg-transparent text-base font-semibold sm:text-lg leading-relaxed text-ink outline-none placeholder:text-slate-300 focus:bg-white"
+          className="mt-6 block w-full resize-none rounded-xl bg-transparent text-base font-medium leading-relaxed text-soft outline-none placeholder:text-faint focus:bg-white/[0.03] sm:text-lg"
         />
 
         {/* Sections */}
@@ -218,25 +218,25 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
             const rows = items.map((it, i) => ({ it, i })).filter((x) => x.it.section === s.key);
             const isKnown = s.key === "known_issue";
             return (
-              <section key={s.key} className={isKnown && rows.length ? "rounded-2xl border border-amber-200 bg-gradient-to-b from-amber-50/70 to-white p-4 sm:p-5" : ""}>
+              <section key={s.key} className={isKnown && rows.length ? "rounded-[24px] border border-amber-400/25 bg-amber-400/[0.06] p-4 sm:p-5" : ""}>
                 <div className="mb-2 flex items-center justify-between">
-                  <h2 className={`flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${isKnown ? "text-amber-700" : "text-navy"}`}>
+                  <h2 className={`flex items-center gap-2 text-sm font-bold uppercase tracking-wider ${isKnown ? "text-amber-300" : "text-fg"}`}>
                     {isKnown && <AlertTriangle size={15} />} {s.label}
-                    <span className="font-semibold text-slate-400">{rows.length}</span>
+                    <span className="font-semibold text-faint">{rows.length}</span>
                   </h2>
                   {!locked && (
-                    <button onClick={() => add(s.key)} className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline">
+                    <button onClick={() => add(s.key)} className="inline-flex items-center gap-1 text-sm font-semibold text-sky hover:underline">
                       <Plus size={15} /> Add
                     </button>
                   )}
                 </div>
                 {rows.length === 0 ? (
-                  <p className="border-t border-line py-3 text-sm text-slate-400">Nothing in {s.label.toLowerCase()}.</p>
+                  <p className="border-t border-line py-3 text-sm text-faint">Nothing in {s.label.toLowerCase()}.</p>
                 ) : (
                   <ul>
                     {rows.map(({ it, i }) => (
                       <li key={i} className="animate-in group flex items-start gap-3 border-t border-line py-3 first:border-t-0 sm:first:border-t">
-                        <span className={`mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full ${isKnown ? "bg-amber-500" : "bg-navy"}`} />
+                        <span className={`mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full ${isKnown ? "bg-amber-400" : "bg-sky"}`} />
                         <div className="min-w-0 flex-1">
                           <AutoTextarea
                             value={it.text}
@@ -244,7 +244,7 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
                             autoFocus={i === focusIdx}
                             disabled={locked}
                             placeholder="Describe the change in plain language…"
-                            className="block w-full resize-none rounded-md bg-transparent px-1 py-0.5 text-[15px] leading-relaxed text-slate-800 outline-none focus:bg-white focus:ring-2 focus:ring-ice"
+                            className="block w-full resize-none rounded-md bg-transparent px-1 py-0.5 text-[15px] leading-relaxed text-soft outline-none focus:bg-white/[0.04] focus:ring-2 focus:ring-sky/30"
                           />
                           <div className="mt-1 flex flex-wrap items-center gap-2 px-1">
                             <input
@@ -252,13 +252,13 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
                               onChange={(e) => update(i, { ticket_id: e.target.value })}
                               disabled={locked}
                               placeholder="Ticket ID"
-                              className="w-28 rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-slate-600 outline-none focus:ring-2 focus:ring-ice"
+                              className="w-28 rounded-full bg-surface-2 px-2.5 py-0.5 font-mono text-xs text-muted outline-none focus:ring-2 focus:ring-sky/30"
                             />
                             {!locked && (
                               <select
                                 value={it.section}
                                 onChange={(e) => update(i, { section: e.target.value as Section })}
-                                className={`rounded px-1.5 py-0.5 text-xs font-semibold outline-none ${SECTION_TINT[it.section]}`}
+                                className={`rounded-full px-2.5 py-0.5 text-xs font-semibold outline-none ${SECTION_TINT[it.section]}`}
                               >
                                 {SECTIONS.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
                               </select>
@@ -284,45 +284,45 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
         {dirty && !locked && (
           <div className="sticky bottom-4 mt-8 flex justify-end">
             <div className="card flex items-center gap-3 p-2 pl-4 shadow-lg">
-              <span className="text-sm text-slate-600">Unsaved changes</span>
+              <span className="text-sm text-muted">Unsaved changes</span>
               <button className="btn btn-primary" onClick={save} disabled={pending}>{spin("save", <Check size={16} />)} {busy === "save" ? "Saving…" : "Save"}</button>
             </div>
           </div>
         )}
 
         {/* Author bar */}
-        <div className="mt-10 flex items-center justify-between rounded-full border border-line bg-white py-2 pl-2 pr-5">
+        <div className="mt-10 flex items-center justify-between rounded-full bg-pill py-2.5 pl-3 pr-5">
           <CreatedBy by={release.created_by} />
-          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">{fmtDate(release.created_at)}</span>
+          <span className="text-xs font-bold uppercase tracking-wider text-muted">{fmtDate(release.created_at)}</span>
         </div>
       </div>
 
       {/* Sidebar */}
       <aside className="space-y-4 lg:pt-12">
         <div className="card p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Client</h3>
-          <p className="mt-1 text-lg font-bold text-navy">{clientName}</p>
-          {release.clients?.contact_email && <p className="text-sm text-slate-500">{release.clients.contact_email}</p>}
-          <a href={portalUrl} target="_blank" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Client</h3>
+          <p className="mt-1 text-lg font-bold text-fg">{clientName}</p>
+          {release.clients?.contact_email && <p className="text-sm text-muted">{release.clients.contact_email}</p>}
+          <a href={portalUrl} target="_blank" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-sky hover:underline">
             Open client portal <ExternalLink size={13} />
           </a>
-          <p className="mt-1 text-xs text-slate-400">Shows approved and sent releases only.</p>
+          <p className="mt-1 text-xs text-faint">Shows approved and sent releases only.</p>
         </div>
 
         <div className="card p-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Activity</h3>
+          <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Activity</h3>
           {activity.length === 0 ? (
-            <p className="mt-2 text-sm text-slate-400">No activity yet.</p>
+            <p className="mt-2 text-sm text-faint">No activity yet.</p>
           ) : (
             <ol className="relative mt-4 space-y-4 border-l border-line pl-4">
               {activity.map((a) => (
                 <li key={a.id} className="relative">
-                  <span className={`absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-white ${dotFor(a.action)}`} />
-                  <p className="text-sm text-slate-800">
-                    <span className="font-semibold text-navy">{a.actor.startsWith("Claude") ? "Claude via MCP" : a.actor}</span>{" "}
+                  <span className={`absolute -left-[21px] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-surface ${dotFor(a.action)}`} />
+                  <p className="text-sm text-soft">
+                    <span className="font-semibold text-fg">{a.actor.startsWith("Claude") ? "Claude via MCP" : a.actor}</span>{" "}
                     <span className="lowercase">{a.action}</span>
                   </p>
-                  <p className="text-xs text-slate-400">{fmtDate(a.created_at, true)}</p>
+                  <p className="text-xs text-faint">{fmtDate(a.created_at, true)}</p>
                 </li>
               ))}
             </ol>
@@ -339,13 +339,13 @@ function dotFor(action: string) {
   if (a.includes("sent to client")) return "bg-brand";
   if (a.startsWith("submitted")) return "bg-amber-500";
   if (a.startsWith("created")) return "bg-sky";
-  return "bg-slate-300";
+  return "bg-faint";
 }
 
 function IconBtn({ children, label, onClick, danger }: { children: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   return (
     <button type="button" title={label} aria-label={label} onClick={onClick}
-      className={`grid h-7 w-7 place-items-center rounded-md text-slate-500 hover:bg-slate-100 ${danger ? "hover:text-red-600" : "hover:text-navy"}`}>
+      className={`grid h-7 w-7 place-items-center rounded-md text-muted hover:bg-surface-2 ${danger ? "hover:text-red-400" : "hover:text-fg"}`}>
       {children}
     </button>
   );

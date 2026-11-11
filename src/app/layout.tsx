@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Plus_Jakarta_Sans, Unbounded } from "next/font/google";
 import "./globals.css";
 import { PortfolioRefTracker } from "@/components/PortfolioBack";
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta" });
+const unbounded = Unbounded({ subsets: ["latin"], variable: "--font-unbounded", weight: ["500", "600", "700"] });
 
 const url = (process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000").replace(/\/$/, "");
 
@@ -15,11 +16,11 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const viewport = { themeColor: "#1B365D" };
+export const viewport = { themeColor: "#060c17" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={jakarta.variable}>
+    <html lang="en" className={`${jakarta.variable} ${unbounded.variable}`}>
       <body className="font-sans min-h-screen">
         <PortfolioRefTracker />
         {children}

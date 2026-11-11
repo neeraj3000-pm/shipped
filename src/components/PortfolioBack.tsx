@@ -33,7 +33,7 @@ export function PortfolioBack({ variant = "header", className = "" }: { variant?
   return variant === "header" ? (
     <a href={PORTFOLIO_URL} className={`btn btn-ghost !px-3 !py-1.5 text-sm ${className}`}><ArrowLeft size={15} /> Portfolio</a>
   ) : (
-    <a href={PORTFOLIO_URL} className={`btn !px-5 !py-3 text-base text-white ring-1 ring-white/30 hover:bg-white/10 ${className}`}>
+    <a href={PORTFOLIO_URL} className={`btn btn-ghost !px-6 !py-3.5 text-base ${className}`}>
       <ArrowLeft size={17} /> Back to Neeraj&apos;s portfolio
     </a>
   );

@@ -31,20 +31,20 @@ export function RoleSwitch({ user }: { user: Profile }) {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-xl border border-line bg-white py-1 pl-1 pr-2 text-left transition-colors hover:border-slate-300"
+        className="flex items-center gap-2 rounded-full bg-surface-2 py-1 pl-1 pr-3 text-left transition-colors hover:bg-elev"
       >
-        <span className={`grid h-8 w-8 place-items-center rounded-lg text-sm font-bold ${user.role === "manager" ? "bg-navy text-ice" : "bg-ice-50 text-brand"}`}>
+        <span className={`grid h-8 w-8 place-items-center rounded-full text-sm font-bold ${user.role === "manager" ? "bg-sky text-pill" : "bg-ice-50 text-sky"}`}>
           {pending ? <Loader2 size={15} className="animate-spin" /> : user.name[0]}
         </span>
         <span className="hidden leading-tight sm:block">
-          <span className="block text-sm font-semibold text-navy">{user.name.split(" (")[0]}</span>
-          <span className="block text-xs text-slate-500">{user.role === "manager" ? "Manager · can approve" : "Team member"}</span>
+          <span className="block text-sm font-semibold text-fg">{user.name.split(" (")[0]}</span>
+          <span className="block text-xs text-muted">{user.role === "manager" ? "Manager · can approve" : "Team member"}</span>
         </span>
-        <ChevronDown size={14} className={`text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown size={14} className={`text-faint transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div role="menu" className="animate-toast absolute right-0 top-full z-40 mt-2 w-72 rounded-2xl border border-line bg-white p-2 shadow-xl">
-          <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-slate-400">View the demo as</p>
+        <div role="menu" className="animate-toast absolute right-0 top-full z-40 mt-3 w-72 rounded-3xl border border-line bg-surface p-2 shadow-[0_30px_60px_-20px_rgb(0_0_0/0.9)]">
+          <p className="px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wider text-faint">View the demo as</p>
           {PERSONAS.map((p) => {
             const current = p.role === user.role;
             return (
@@ -56,12 +56,12 @@ export function RoleSwitch({ user }: { user: Profile }) {
                   setOpen(false);
                   if (!current) start(async () => { await switchRole(p.role, path); });
                 }}
-                className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${current ? "bg-ice-50" : "hover:bg-canvas"}`}
+                className={`flex w-full items-start gap-3 rounded-2xl px-3 py-2.5 text-left transition-colors ${current ? "bg-ice-50" : "hover:bg-surface-2"}`}
               >
-                <span className="mt-0.5 w-4 shrink-0 text-brand">{current && <Check size={16} />}</span>
+                <span className="mt-0.5 w-4 shrink-0 text-sky">{current && <Check size={16} />}</span>
                 <span>
-                  <span className="block text-sm font-semibold text-navy">{p.name}</span>
-                  <span className="block text-xs text-slate-500">{p.desc}</span>
+                  <span className="block text-sm font-semibold text-fg">{p.name}</span>
+                  <span className="block text-xs text-muted">{p.desc}</span>
                 </span>
               </button>
             );

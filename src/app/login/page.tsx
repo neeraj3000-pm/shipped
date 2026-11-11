@@ -3,52 +3,35 @@ import { redirect } from "next/navigation";
 import { currentUser } from "@/lib/session";
 import { Logo } from "@/components/Logo";
 import { LoginForm, DemoButtons } from "./LoginForm";
-import { ArrowRight, ShieldCheck, Sparkles, Link2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 export default async function LoginPage() {
   if (await currentUser()) redirect("/");
   return (
-    <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
-      {/* Brand panel */}
-      <section className="relative hidden overflow-hidden bg-navy p-12 text-white lg:flex lg:flex-col">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand/40 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 left-10 h-80 w-80 rounded-full bg-sky/20 blur-3xl" />
-        <Link href="/about" className="relative w-fit rounded-xl bg-white px-3 py-2"><Logo /></Link>
-        <div className="relative mt-auto max-w-md">
-          <h1 className="headline text-5xl">Release notes your clients can trust.</h1>
-          <p className="mt-4 text-lg text-ice/90">Claude writes them. Your team approves them. Every client gets their own private history.</p>
-          <ul className="mt-8 space-y-3 text-[15px] text-white/90">
-            <li className="flex items-center gap-3"><Sparkles size={18} className="text-sky" /> One draft per client, written by your own Claude</li>
-            <li className="flex items-center gap-3"><ShieldCheck size={18} className="text-sky" /> Nothing reaches a client without a manager&apos;s approval</li>
-            <li className="flex items-center gap-3"><Link2 size={18} className="text-sky" /> One private link per client with their full history</li>
-          </ul>
-          <Link href="/about" className="mt-10 inline-flex items-center gap-2 font-semibold text-sky hover:text-white">
-            Read how it works <ArrowRight size={16} />
-          </Link>
+    <div className="flex min-h-screen flex-col">
+      <header className="mx-auto mt-3 w-full max-w-6xl px-3 sm:px-6">
+        <div className="flex h-16 items-center justify-between rounded-[28px] bg-pill/90 pl-5 pr-2.5 ring-1 ring-white/[0.06] sm:pl-7">
+          <Link href="/about"><Logo /></Link>
+          <Link href="/about" className="btn btn-ghost !py-2 text-sm">How it works <ArrowRight size={15} /></Link>
         </div>
-      </section>
+      </header>
 
-      {/* Sign-in */}
-      <section className="flex items-center justify-center px-4 py-12">
-        <div className="animate-page w-full max-w-sm">
-          <div className="mb-8 lg:hidden"><Logo size="lg" /></div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-navy">Try the live demo</h2>
-          <p className="mt-1 text-slate-500">Pick a role. No sign-up, no password to remember.</p>
-          <DemoButtons />
-
-          <div className="my-7 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-slate-400">
-            <span className="h-px flex-1 bg-line" /> or sign in with email <span className="h-px flex-1 bg-line" />
-          </div>
-          <LoginForm />
-
-          <p className="mt-8 text-center text-sm text-slate-500">
-            New here?{" "}
-            <Link href="/about" className="font-semibold text-brand hover:underline">See how Shipped works</Link>
-          </p>
-        </div>
-      </section>
+      <main className="animate-page mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-4 py-14 text-center">
+        <p className="rounded-full bg-sky/10 px-3 py-1 text-xs font-semibold text-sky ring-1 ring-sky/25">Live demo · no sign-up</p>
+        <h1 className="display-xl mt-6 text-5xl text-fg sm:text-7xl">Try Shipped</h1>
+        <p className="mt-5 max-w-md text-lg text-muted">
+          Release notes written by Claude, approved by people. Pick a role to step in.
+        </p>
+        <DemoButtons />
+        <details className="group mt-10 w-full max-w-md text-left">
+          <summary className="mx-auto w-fit cursor-pointer list-none text-sm font-semibold text-muted hover:text-fg">
+            Sign in with email instead <span className="inline-block transition-transform group-open:rotate-180">⌄</span>
+          </summary>
+          <div className="mt-5"><LoginForm /></div>
+        </details>
+      </main>
     </div>
   );
 }

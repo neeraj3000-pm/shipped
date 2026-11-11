@@ -15,10 +15,10 @@ export function NavLinks({ variant }: { variant: "desktop" | "mobile" }) {
     href === "/" ? path === "/" || path.startsWith("/releases") : path.startsWith(href.split("?")[0]);
   if (variant === "mobile")
     return (
-      <nav className="flex gap-1 overflow-x-auto border-t border-line px-3 py-2 md:hidden" aria-label="Main">
+      <nav className="flex gap-1 overflow-x-auto border-t border-white/[0.06] px-3 py-2 md:hidden" aria-label="Main">
         {LINKS.map((l) => (
           <Link key={l.href} href={l.href}
-            className={`shrink-0 rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${isActive(l.href) ? "bg-ice-50 text-brand" : "text-slate-600"}`}>
+            className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${isActive(l.href) ? "bg-fg text-pill" : "text-muted"}`}>
             {l.label}
           </Link>
         ))}
@@ -28,7 +28,7 @@ export function NavLinks({ variant }: { variant: "desktop" | "mobile" }) {
     <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
       {LINKS.map((l) => (
         <Link key={l.href} href={l.href}
-          className={`rounded-lg px-3 py-1.5 text-sm font-semibold transition-colors ${isActive(l.href) ? "bg-ice-50 text-brand" : "text-slate-600 hover:bg-canvas hover:text-navy"}`}>
+          className={`rounded-full px-3.5 py-1.5 text-[15px] font-medium transition-colors ${isActive(l.href) ? "text-sky" : "text-soft hover:text-fg"}`}>
           {l.label}
         </Link>
       ))}

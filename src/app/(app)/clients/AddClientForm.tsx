@@ -9,15 +9,15 @@ export function AddClientForm() {
   return (
     <form ref={ref} action={action} className="card mt-6 flex flex-wrap items-end gap-3 p-4">
       <label className="min-w-[180px] flex-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Client name</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-muted">Client name</span>
         <input name="name" required className="field mt-1" placeholder="e.g. Atlas Sports" />
       </label>
       <label className="min-w-[220px] flex-1">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Contact email</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-muted">Contact email</span>
         <input name="contact_email" type="email" className="field mt-1" placeholder="product@client.com" />
       </label>
       <button className="btn btn-primary" disabled={pending}>Add client</button>
-      {state && "error" in state && <p className="w-full text-sm text-red-600">{state.error}</p>}
+      {state && "error" in state && <p className="w-full text-sm text-red-400">{state.error}</p>}
     </form>
   );
 }
