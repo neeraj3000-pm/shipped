@@ -1,13 +1,14 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft, ArrowRight, CheckCircle2, FileText, Link2, ListChecks, MessageSquareText, ShieldCheck, Sparkles, X, Check, History, Wallet } from "lucide-react";
+import { ArrowRight, CheckCircle2, FileText, Link2, ListChecks, MessageSquareText, ShieldCheck, Sparkles, X, Check, History, Wallet } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Reveal } from "@/components/Reveal";
 import { CopyButton } from "@/components/CopyButton";
 import { HeroDemo } from "./HeroDemo";
+import { PortfolioBack } from "@/components/PortfolioBack";
 import { admin } from "@/lib/supabase/admin";
 import { appUrl } from "@/lib/format";
-import { DEMO_PROMPT, PORTFOLIO_URL, SAMPLE_TICKETS } from "@/lib/demo";
+import { DEMO_PROMPT, SAMPLE_TICKETS } from "@/lib/demo";
 
 export const revalidate = 3600;
 export const metadata: Metadata = {
@@ -59,9 +60,11 @@ export default async function About() {
       {/* Top bar */}
       <header className="sticky top-0 z-30 border-b border-line/70 bg-white/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
-          <a href={PORTFOLIO_URL} className="btn btn-ghost !px-3 !py-1.5 text-sm"><ArrowLeft size={15} /> Portfolio</a>
           <Link href="/about" aria-label="Shipped"><Logo /></Link>
-          <Link href="/login" className="btn btn-primary !px-3 !py-1.5 text-sm">Try it <ArrowRight size={15} /></Link>
+          <div className="flex items-center gap-2">
+            <PortfolioBack />
+            <Link href="/login" className="btn btn-primary !px-3 !py-1.5 text-sm">Try it <ArrowRight size={15} /></Link>
+          </div>
         </div>
       </header>
 
@@ -316,7 +319,7 @@ export default async function About() {
           <h2 className="headline text-3xl text-white sm:text-4xl">See it work in under a minute.</h2>
           <div className="flex flex-wrap justify-center gap-3">
             <Link href="/login" className="btn !bg-white !px-5 !py-3 text-base !text-navy hover:!bg-ice-50">Try the live demo <ArrowRight size={17} /></Link>
-            <a href={PORTFOLIO_URL} className="btn !px-5 !py-3 text-base text-white ring-1 ring-white/30 hover:bg-white/10"><ArrowLeft size={17} /> Back to Neeraj&apos;s portfolio</a>
+            <PortfolioBack variant="footer" />
           </div>
           <p className="text-sm text-ice/70">Built by Neeraj P. · No AI inside: all writing is done by the customer&apos;s own Claude.</p>
         </div>

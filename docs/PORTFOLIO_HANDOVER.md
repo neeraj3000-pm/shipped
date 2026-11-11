@@ -24,7 +24,7 @@ How a recruiter uses it:
 - They can switch roles from the top-right menu.
 - Demo data resets every night.
 
-The `/about` page has a "← Portfolio" button that links to `https://neeraj-portfolio-orcin.vercel.app/#projects`. **If the projects anchor isn't `#projects`, tell Neeraj** so the Shipped side can be updated (it's `PORTFOLIO_URL` in `src/lib/demo.ts` of the Shipped repo).
+For visitors who came from the portfolio, the `/about` page shows a "← Portfolio" button that links to `https://neeraj-portfolio-orcin.vercel.app/#projects`. **If the projects anchor isn't `#projects`, tell Neeraj** so the Shipped side can be updated (it's `PORTFOLIO_URL` in `src/lib/demo.ts` of the Shipped repo).
 
 ---
 
@@ -67,8 +67,10 @@ The `/about` page has a "← Portfolio" button that links to `https://neeraj-por
 **Stack chips:** `Next.js` · `TypeScript` · `Supabase` · `MCP` · `Tailwind` · `Vercel`
 
 **Buttons:**
-- Primary: **Try Shipped →** https://shipped-release-notes.vercel.app/login
-- Secondary: **Read the build story** https://shipped-release-notes.vercel.app/about
+- Primary: **Try Shipped →** https://shipped-release-notes.vercel.app/login?ref=portfolio
+- Secondary: **Read the build story** https://shipped-release-notes.vercel.app/about?ref=portfolio
+
+**Keep `?ref=portfolio` on both links.** Shipped only shows its "← Portfolio" buttons to visitors who arrive from the portfolio (it also checks the referrer, but the tag is the reliable signal). Everyone else sees no portfolio button.
 
 ---
 
@@ -88,6 +90,6 @@ The `/about` page has a "← Portfolio" button that links to `https://neeraj-por
 
 - [ ] The Shipped card appears after SyncUp, and on desktop and mobile it looks consistent with the SyncUp card.
 - [ ] "Try Shipped" opens `/login` with the two one-click demo buttons.
-- [ ] "Read the build story" opens `/about`, and its "← Portfolio" button comes back to the projects section.
+- [ ] "Read the build story" opens `/about?ref=portfolio`, a "← Portfolio" button appears, and it comes back to the projects section. Opening `/about` directly in a private window shows no portfolio button.
 - [ ] No horizontal scroll at 390px width. Images have alt text.
 - [ ] The portfolio is deployed, and Neeraj has checked it in a private window.
