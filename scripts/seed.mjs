@@ -25,16 +25,16 @@ async function ensureUser(u) {
   console.log("user", u.email);
 }
 
-const CLIENTS = [
-  { name: "StreamCo", slug: "streamco", contact_email: "product@streamco.example" },
-  { name: "Nova TV", slug: "nova-tv", contact_email: "ops@novatv.example" },
-  { name: "Atlas Sports", slug: "atlas-sports", contact_email: "digital@atlassports.example" },
-];
+// Demo clients and releases live in src/lib/demo-data.json (shared with the in-app reset).
+import { readFileSync } from "node:fs";
+const DATA = JSON.parse(readFileSync(new URL("../src/lib/demo-data.json", import.meta.url), "utf8"));
 
 async function main() {
   for (const u of USERS) await ensureUser(u);
+  const slugs = DATA.clients.map((c) => c.slug);
+  await sb.from("clients").delete().not("slug", "in", `(${slugs.join(",")})`);
   const ids = {};
-  for (const c of CLIENTS) {
+  for (const c of DATA.clients) {
     const { data: ex } = await sb.from("clients").select("id").eq("slug", c.slug).maybeSingle();
     if (ex) ids[c.slug] = ex.id;
     else {
@@ -43,52 +43,17 @@ async function main() {
       ids[c.slug] = data.id;
     }
   }
-  await sb.from("releases").delete().neq("id", "00000000-0000-0000-0000-000000000000");
-
-  const day = 86400000;
-  const at = (d) => new Date(Date.now() - d * day).toISOString();
-
-  const releases = [
-    {
-      client_id: ids["streamco"], version: "2.13", title: "Faster publishing and clearer QC", status: "sent",
-      summary: "This release speeds up how your team publishes large catalogues and makes quality-check results easier to act on.",
-      items: [
-        { section: "new", text: "You can now schedule a batch of titles to publish at a set date and time, so premieres go live without anyone on standby.", ticket_id: "PLAT-388" },
-        { section: "improved", text: "Large catalogue uploads now finish up to 40% faster.", ticket_id: "PLAT-392" },
-        { section: "improved", text: "Quality-check reports now explain each failure in plain words and suggest the fix.", ticket_id: "PLAT-395" },
-        { section: "fixed", text: "Thumbnails no longer appear blank for some titles after re-publishing.", ticket_id: "PLAT-401" },
-      ],
-      created_by: "Claude (MCP)", approved_by: "Priya (Manager)", approved_at: at(13), sent_at: at(12), created_at: at(14), updated_at: at(12),
-      log: [[14, "Claude (MCP)", "Created draft"], [13.8, "Arjun (Team)", "Edited"], [13.7, "Arjun (Team)", "Submitted for review"], [13, "Priya (Manager)", "Approved"], [12, "Priya (Manager)", "Marked as sent to client"]],
-    },
-    {
-      client_id: ids["streamco"], version: "2.12", title: "Smarter rights windows", status: "sent",
-      summary: "Content now follows your licensing windows automatically, with fewer manual checks.",
-      items: [
-        { section: "new", text: "Titles are automatically hidden when their licence window ends, and shown again when it reopens.", ticket_id: "PLAT-351" },
-        { section: "fixed", text: "Episode order is now correct in exported season feeds.", ticket_id: "PLAT-360" },
-      ],
-      created_by: "Arjun (Team)", approved_by: "Priya (Manager)", approved_at: at(27), sent_at: at(27), created_at: at(28), updated_at: at(27),
-      log: [[28, "Arjun (Team)", "Created draft"], [27.5, "Arjun (Team)", "Submitted for review"], [27.2, "Priya (Manager)", "Approved"], [27, "Priya (Manager)", "Marked as sent to client"]],
-    },
-    {
-      client_id: ids["nova-tv"], version: "2.13", title: "Better regional scheduling", status: "approved",
-      summary: "Your regional channels now get more reliable schedules and quicker turnaround on metadata fixes.",
-      items: [
-        { section: "improved", text: "Regional programme schedules now update within 5 minutes of a change, down from 30.", ticket_id: "PLAT-390" },
-        { section: "fixed", text: "Programme descriptions with special characters now display correctly on connected TVs.", ticket_id: "PLAT-398" },
-        { section: "known_issue", text: "Very large schedule imports (over 2,000 rows) can take a few minutes; splitting the file speeds it up.", ticket_id: "PLAT-404" },
-      ],
-      created_by: "Claude (MCP)", approved_by: "Priya (Manager)", approved_at: at(11), sent_at: null, created_at: at(13), updated_at: at(11),
-      log: [[13, "Claude (MCP)", "Created draft"], [12, "Arjun (Team)", "Submitted for review"], [11, "Priya (Manager)", "Approved"]],
-    },
-  ];
-
-  for (const { log, ...r } of releases) {
-    const { data, error } = await sb.from("releases").insert(r).select("id").single();
+  await sb.from("releases").delete().in("client_id", Object.values(ids));
+  const at = (d) => (d === null ? null : new Date(Date.now() - d * 86400000).toISOString());
+  for (const r of DATA.releases) {
+    const { data, error } = await sb.from("releases").insert({
+      client_id: ids[r.client], version: r.version, title: r.title, summary: r.summary, status: r.status, items: r.items,
+      created_by: r.created_by, approved_by: r.approved_by, approved_at: at(r.approved), sent_at: at(r.sent),
+      created_at: at(r.created), updated_at: at(r.sent ?? r.approved ?? r.created),
+    }).select("id").single();
     if (error) throw error;
-    await sb.from("activity").insert(log.map(([d, actor, action]) => ({ release_id: data.id, actor, action, created_at: at(d) })));
-    console.log("release", r.version, r.status);
+    await sb.from("activity").insert(r.log.map(([d, actor, action]) => ({ release_id: data.id, actor, action, created_at: at(d) })));
+    console.log("release", r.client, r.version, r.status);
   }
   console.log("done");
 }

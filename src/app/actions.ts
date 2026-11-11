@@ -5,7 +5,9 @@ import { redirect } from "next/navigation";
 import { authClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/session";
 import { addClient, logActivity, moveStatus, updateContent } from "@/lib/store";
-import type { Item } from "@/lib/types";
+import type { Item, Role } from "@/lib/types";
+import { DEMO_PASSWORD, DEMO_USERS } from "@/lib/demo";
+import { resetDemo } from "@/lib/demo-reset";
 
 export async function login(_: unknown, form: FormData) {
   const sb = await authClient();
@@ -15,6 +17,33 @@ export async function login(_: unknown, form: FormData) {
   });
   if (error) return { error: "Wrong email or password." };
   redirect("/");
+}
+
+/** One-click demo sign-in (the demo credentials are public by design). */
+export async function loginAs(role: Role, next?: string) {
+  const sb = await authClient();
+  const { error } = await sb.auth.signInWithPassword({ email: DEMO_USERS[role].email, password: DEMO_PASSWORD });
+  if (error) return { error: "Demo sign-in failed. Please try again." };
+  redirect(next && next.startsWith("/") && !next.startsWith("//") ? next : "/");
+}
+
+/** Switch between the two demo personas without leaving the current page. */
+export async function switchRole(role: Role, path: string) {
+  const sb = await authClient();
+  await sb.auth.signOut();
+  return loginAs(role, path);
+}
+
+export async function resetDemoAction(): Promise<Result> {
+  const u = await requireUser();
+  if (u.role !== "manager") return { ok: false, error: "Only a manager can reset the demo." };
+  try {
+    await resetDemo();
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true, message: "Demo data restored." };
 }
 
 export async function logout() {

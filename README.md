@@ -12,6 +12,11 @@
 
 Status flow: `draft → in_review → approved → sent`. Editing an approved release clears the approval and sends it back to review. Sent releases are locked.
 
+## Live demo
+- **App:** https://shipped-release-notes.vercel.app (one-click sign-in as Manager or Team member on `/login`; switch roles from the top-right menu)
+- **Build story:** https://shipped-release-notes.vercel.app/about
+- Demo data is restored nightly by a Vercel Cron (`/api/cron/reset-demo`, needs `CRON_SECRET`) and on demand by a manager (Connect Claude → Reset demo data). Demo clients keep their portal links across resets. The seed data lives in `src/lib/demo-data.json`.
+
 ## Demo accounts
 | Role | Email | Password |
 |---|---|---|
@@ -54,12 +59,14 @@ Expected: StreamCo gets 412, 418, 421, 430; Nova TV gets 418, 421, 425, 430; 427
 ## Stack
 Next.js 15 (App Router, TypeScript, Tailwind) on Vercel · Supabase (Postgres + Auth) · `mcp-handler` (Streamable HTTP).
 
+Hosted in Vercel's `syd1` region next to the Supabase project (`ap-southeast-2`). Sessions are verified locally from the JWT (`getClaims`), and name/role live in `app_metadata`, so pages don't pay an auth round trip.
+
 All data access is server-side with the service role after checking the logged-in user; RLS is enabled with no public policies. Role checks (manager vs member) are enforced in server actions, not just hidden in the UI.
 
 ## Setup
 1. Create a Supabase project, run `supabase/schema.sql` in the SQL editor.
 2. Copy env vars into `.env.local`:
-   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `MCP_WORKSPACE_TOKEN` (random string), `NEXT_PUBLIC_APP_URL`.
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `MCP_WORKSPACE_TOKEN` (random string), `NEXT_PUBLIC_APP_URL`, and optionally `CRON_SECRET` (random string, enables the nightly demo reset).
 3. `npm install && node --env-file=.env.local scripts/seed.mjs && npm run dev`
 
 ## Roadmap (not in v1)

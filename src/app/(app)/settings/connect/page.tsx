@@ -1,10 +1,11 @@
 import { requireUser } from "@/lib/session";
+import { ResetDemo } from "@/components/ResetDemo";
 import { appUrl } from "@/lib/format";
 import { CopyButton } from "@/components/CopyButton";
 import { DEMO_PROMPT, SAMPLE_TICKETS } from "@/lib/demo";
 
 export default async function ConnectPage() {
-  await requireUser();
+  const user = await requireUser();
   const url = `${appUrl()}/api/mcp/${process.env.MCP_WORKSPACE_TOKEN}`;
   const steps = [
     { t: "Open connectors", d: "In claude.ai, go to Settings → Connectors and click “Add custom connector”." },
@@ -14,7 +15,7 @@ export default async function ConnectPage() {
   ];
   return (
     <div className="max-w-3xl">
-      <h1 className="headline text-4xl text-ink">Connect Claude</h1>
+      <h1 className="headline text-3xl text-ink sm:text-4xl">Connect Claude</h1>
       <p className="mt-2 text-slate-600">
         Shipped has no AI inside. Your own Claude does the writing through this connector, and Shipped handles review, approval and delivery.
       </p>
@@ -30,7 +31,7 @@ export default async function ConnectPage() {
 
       <ol className="mt-8 grid gap-3 sm:grid-cols-2">
         {steps.map((s, i) => (
-          <li key={i} className="card p-5">
+          <li key={i} style={{ ["--i" as string]: i }} className="animate-in card p-5">
             <span className="grid h-7 w-7 place-items-center rounded-full bg-navy text-sm font-bold text-ice">{i + 1}</span>
             <p className="mt-3 font-bold text-navy">{s.t}</p>
             <p className="mt-1 text-sm text-slate-600">{s.d}</p>
@@ -55,6 +56,18 @@ export default async function ConnectPage() {
           <li><code className="text-brand">list_releases</code>, <code className="text-brand">get_release</code>, <code className="text-brand">update_release</code>: read and revise drafts</li>
           <li className="font-medium text-slate-800">Approval and sending are human-only, in this app.</li>
         </ul>
+      </div>
+
+      <div className="card mt-8 border-dashed p-5">
+        <p className="font-bold text-navy">Demo workspace</p>
+        <p className="mt-1 text-sm text-slate-600">
+          This is a public demo. Data is restored automatically every night, and portal links never change.
+        </p>
+        {user.role === "manager" ? (
+          <div className="mt-3"><ResetDemo /></div>
+        ) : (
+          <p className="mt-2 text-xs text-slate-400">Switch to the manager to reset it now.</p>
+        )}
       </div>
     </div>
   );

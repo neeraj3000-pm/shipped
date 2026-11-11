@@ -9,7 +9,7 @@ export default async function ClientsPage() {
   const [user, clients, releases] = await Promise.all([requireUser(), listClients(), listReleases()]);
   return (
     <div>
-      <h1 className="headline text-4xl text-ink">Clients</h1>
+      <h1 className="headline text-3xl text-ink sm:text-4xl">Clients</h1>
       <p className="mt-2 text-slate-600">Each client gets one private, read-only link with their approved release history.</p>
 
       {user.role === "manager" && <AddClientForm />}
@@ -23,7 +23,7 @@ export default async function ClientsPage() {
           const mine = releases.filter((r) => r.client_id === c.id);
           const last = mine.find((r) => r.status === "sent");
           return (
-            <div key={c.id} className="card flex flex-wrap items-center gap-4 p-5">
+            <div key={c.id} style={{ ["--i" as string]: clients.indexOf(c) }} className="animate-in lift card flex flex-wrap items-center gap-4 p-5">
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-navy text-lg font-extrabold text-ice">{c.name[0]}</div>
               <div className="min-w-0 flex-1">
                 <p className="text-lg font-bold text-navy">{c.name}</p>

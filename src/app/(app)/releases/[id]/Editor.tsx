@@ -6,6 +6,7 @@ import { ArrowDown, ArrowUp, Check, ChevronLeft, Copy, ExternalLink, Lock, Plus,
 import { saveRelease, transition } from "@/app/actions";
 import { CreatedBy, StatusBadge } from "@/components/StatusBadge";
 import { emailFor, fmtDate } from "@/lib/format";
+import { AutoTextarea } from "@/components/AutoTextarea";
 import { SECTIONS, type Activity, type Item, type Release, type Role, type Section } from "@/lib/types";
 
 const SECTION_TINT: Record<Section, string> = {
@@ -29,6 +30,7 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
   const [items, setItems] = useState<Item[]>(release.items);
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState<string | null>(null);
+  const [focusIdx, setFocusIdx] = useState<number | null>(null);
   const [flash, setFlash] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   // Status flips instantly; reverts automatically if the server rejects it.
   const [status, setOptimisticStatus] = useOptimistic(release.status);
@@ -98,7 +100,10 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
       return c;
     });
   const remove = (i: number) => setItems((xs) => xs.filter((_, j) => j !== i));
-  const add = (section: Section) => setItems((xs) => [...xs, { section, text: "", ticket_id: "" }]);
+  const add = (section: Section) => {
+    setFocusIdx(items.length);
+    setItems((xs) => [...xs, { section, text: "", ticket_id: "" }]);
+  };
 
   // Primary actions by status + role
   const actions: React.ReactNode[] = [];
@@ -160,15 +165,20 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
         </nav>
 
         {/* Status bar */}
-        <div className="card mb-8 flex flex-wrap items-center gap-3 p-3 pl-4">
-          <StatusBadge status={status} large />
-          <p className="min-w-0 flex-1 text-sm text-slate-600">{dirty && !locked ? "You have unsaved changes." : NEXT_STEP[status][role]}</p>
-          <div className="flex flex-wrap gap-2">{actions}</div>
+        <div className="card z-20 mb-8 flex flex-col gap-3 p-3 sm:flex-row sm:items-center sm:pl-4 lg:sticky lg:top-20 lg:shadow-[0_8px_24px_-16px_rgb(27_54_93/0.35)]">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <span key={status} className="animate-pop inline-flex shrink-0"><StatusBadge status={status} large /></span>
+            <p className="min-w-0 text-sm text-slate-600">{dirty && !locked ? "You have unsaved changes." : NEXT_STEP[status][role]}</p>
+          </div>
+          <div className="flex flex-wrap gap-2 [&>*]:flex-1 sm:[&>*]:flex-none [&>button]:justify-center">{actions}</div>
         </div>
 
         {flash && (
-          <div className={`mb-6 rounded-xl px-4 py-3 text-sm font-medium ${flash.kind === "ok" ? "bg-emerald-50 text-emerald-800" : "bg-red-50 text-red-700"}`}>
-            {flash.text}
+          <div className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4">
+            <div role="status" aria-live="polite"
+              className={`animate-toast flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold shadow-xl ${flash.kind === "ok" ? "bg-navy text-white" : "bg-red-600 text-white"}`}>
+              {flash.kind === "ok" ? <Check size={16} className="text-ice" /> : <AlertTriangle size={16} />} {flash.text}
+            </div>
           </div>
         )}
 
@@ -177,13 +187,12 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
         )}
 
         {/* Headline */}
-        <textarea
+        <AutoTextarea
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           disabled={locked}
-          rows={1}
           placeholder="Release title"
-          className="headline block w-full resize-none bg-transparent text-4xl text-ink outline-none placeholder:text-slate-300 focus:bg-white/60 sm:text-5xl [field-sizing:content]"
+          className="headline block w-full resize-none bg-transparent text-[2.1rem] text-ink outline-none placeholder:text-slate-300 focus:bg-white/60 sm:text-5xl"
         />
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -195,13 +204,12 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
           <span className="text-sm font-semibold text-brand">for {clientName}</span>
         </div>
 
-        <textarea
+        <AutoTextarea
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
           disabled={locked}
-          rows={2}
           placeholder="A one or two sentence summary for the client…"
-          className="mt-6 block w-full resize-none rounded-lg bg-transparent text-lg font-semibold leading-relaxed text-ink outline-none placeholder:text-slate-300 focus:bg-white [field-sizing:content]"
+          className="mt-6 block w-full resize-none rounded-lg bg-transparent text-base font-semibold sm:text-lg leading-relaxed text-ink outline-none placeholder:text-slate-300 focus:bg-white"
         />
 
         {/* Sections */}
@@ -227,16 +235,16 @@ export function Editor({ release, activity, role, portalUrl }: { release: Releas
                 ) : (
                   <ul>
                     {rows.map(({ it, i }) => (
-                      <li key={i} className="group flex items-start gap-3 border-t border-line py-3 first:border-t-0 sm:first:border-t">
+                      <li key={i} className="animate-in group flex items-start gap-3 border-t border-line py-3 first:border-t-0 sm:first:border-t">
                         <span className={`mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full ${isKnown ? "bg-amber-500" : "bg-navy"}`} />
                         <div className="min-w-0 flex-1">
-                          <textarea
+                          <AutoTextarea
                             value={it.text}
                             onChange={(e) => update(i, { text: e.target.value })}
+                            autoFocus={i === focusIdx}
                             disabled={locked}
-                            rows={1}
                             placeholder="Describe the change in plain language…"
-                            className="block w-full resize-none rounded-md bg-transparent px-1 py-0.5 text-[15px] leading-relaxed text-slate-800 outline-none focus:bg-white focus:ring-2 focus:ring-ice [field-sizing:content]"
+                            className="block w-full resize-none rounded-md bg-transparent px-1 py-0.5 text-[15px] leading-relaxed text-slate-800 outline-none focus:bg-white focus:ring-2 focus:ring-ice"
                           />
                           <div className="mt-1 flex flex-wrap items-center gap-2 px-1">
                             <input

@@ -1,0 +1,54 @@
+{
+  "clients": [
+    { "name": "StreamCo", "slug": "streamco", "contact_email": "product@streamco.example" },
+    { "name": "Nova TV", "slug": "nova-tv", "contact_email": "ops@novatv.example" },
+    { "name": "Atlas Sports", "slug": "atlas-sports", "contact_email": "digital@atlassports.example" }
+  ],
+  "releases": [
+    {
+      "client": "streamco", "version": "2.12", "title": "Smarter rights windows", "status": "sent",
+      "summary": "Content now follows your licensing windows automatically, with fewer manual checks.",
+      "items": [
+        { "section": "new", "text": "Titles are automatically hidden when their licence window ends, and shown again when it reopens.", "ticket_id": "PLAT-351" },
+        { "section": "fixed", "text": "Episode order is now correct in exported season feeds.", "ticket_id": "PLAT-360" }
+      ],
+      "created_by": "Arjun (Team)", "approved_by": "Priya (Manager)", "created": 28, "approved": 27.2, "sent": 27,
+      "log": [[28, "Arjun (Team)", "Created draft"], [27.5, "Arjun (Team)", "Submitted for review"], [27.2, "Priya (Manager)", "Approved"], [27, "Priya (Manager)", "Marked as sent to client"]]
+    },
+    {
+      "client": "streamco", "version": "2.13", "title": "Faster publishing and clearer QC", "status": "sent",
+      "summary": "This release speeds up how your team publishes large catalogues and makes quality-check results easier to act on.",
+      "items": [
+        { "section": "new", "text": "You can now schedule a batch of titles to publish at a set date and time, so premieres go live without anyone on standby.", "ticket_id": "PLAT-388" },
+        { "section": "improved", "text": "Large catalogue uploads now finish up to 40% faster.", "ticket_id": "PLAT-392" },
+        { "section": "improved", "text": "Quality-check reports now explain each failure in plain words and suggest the fix.", "ticket_id": "PLAT-395" },
+        { "section": "fixed", "text": "Thumbnails no longer appear blank for some titles after re-publishing.", "ticket_id": "PLAT-401" }
+      ],
+      "created_by": "Claude (MCP)", "approved_by": "Priya (Manager)", "created": 14, "approved": 13, "sent": 12,
+      "log": [[14, "Claude (MCP)", "Created draft"], [13.8, "Arjun (Team)", "Edited"], [13.7, "Arjun (Team)", "Submitted for review"], [13, "Priya (Manager)", "Approved"], [12, "Priya (Manager)", "Marked as sent to client"]]
+    },
+    {
+      "client": "nova-tv", "version": "2.13", "title": "Better regional scheduling", "status": "approved",
+      "summary": "Your regional channels now get more reliable schedules and quicker turnaround on metadata fixes.",
+      "items": [
+        { "section": "improved", "text": "Regional programme schedules now update within 5 minutes of a change, down from 30.", "ticket_id": "PLAT-390" },
+        { "section": "fixed", "text": "Programme descriptions with special characters now display correctly on connected TVs.", "ticket_id": "PLAT-398" },
+        { "section": "known_issue", "text": "Very large schedule imports (over 2,000 rows) can take a few minutes; splitting the file speeds it up.", "ticket_id": "PLAT-404" }
+      ],
+      "created_by": "Claude (MCP)", "approved_by": "Priya (Manager)", "created": 13, "approved": 11, "sent": null,
+      "log": [[13, "Claude (MCP)", "Created draft"], [12, "Arjun (Team)", "Submitted for review"], [11, "Priya (Manager)", "Approved"]]
+    },
+    {
+      "client": "atlas-sports", "version": "2.14", "title": "Highlights in 12 minutes, not 30", "status": "draft",
+      "summary": "Live match clips now reach your on-demand library more than twice as fast, and subtitles stay in sync on full-length replays.",
+      "items": [
+        { "section": "improved", "text": "Clips from live matches are now ready to watch on demand in about 12 minutes, down from 30, so highlights land while fans are still talking about the game.", "ticket_id": "PLAT-433" },
+        { "section": "improved", "text": "The quality-check dashboard now flags any video that has been waiting in compliance review for more than two hours.", "ticket_id": "PLAT-421" },
+        { "section": "fixed", "text": "Subtitles stay in sync on long replays, even past the two-hour mark.", "ticket_id": "PLAT-418" },
+        { "section": "known_issue", "text": "Publishing more than 500 videos at once can time out. Until a fix ships, publish in batches of 200.", "ticket_id": "PLAT-430" }
+      ],
+      "created_by": "Claude (MCP)", "approved_by": null, "created": 0.02, "approved": null, "sent": null,
+      "log": [[0.02, "Claude (MCP)", "Created draft"]]
+    }
+  ]
+}

@@ -3,7 +3,9 @@ import type { Metadata } from "next";
 import { AlertTriangle, CheckCircle2 } from "lucide-react";
 import { portalData } from "@/lib/store";
 import { fmtDate } from "@/lib/format";
+import Link from "next/link";
 import { Logo } from "@/components/Logo";
+import { Reveal } from "@/components/Reveal";
 import { SECTIONS, type Release } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
@@ -25,7 +27,7 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+      <main className="animate-page mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
         <nav className="mb-6 flex items-center gap-2 text-sm font-medium text-navy">
           <span>{client.name}</span><span className="text-slate-400">›</span><span className="underline underline-offset-4">Release notes</span>
         </nav>
@@ -42,7 +44,7 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
               <section className="mt-20">
                 <h2 className="mb-5 text-xs font-bold uppercase tracking-wider text-slate-500">Earlier releases</h2>
                 <div className="space-y-4">
-                  {older.map((r) => <OlderCard key={r.id} r={r} />)}
+                  {older.map((r, i) => <Reveal key={r.id} i={i}><OlderCard r={r} /></Reveal>)}
                 </div>
               </section>
             )}
@@ -51,7 +53,8 @@ export default async function Portal({ params }: { params: Promise<{ token: stri
       </main>
 
       <footer className="border-t border-line py-8 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
-        Private release history for {client.name} · Sent with Shipped
+        Private release history for {client.name} ·{" "}
+        <Link href="/about" className="text-brand hover:underline">Sent with Shipped</Link>
       </footer>
     </div>
   );
@@ -61,7 +64,7 @@ function Hero({ r }: { r: Release }) {
   const known = r.items.filter((i) => i.section === "known_issue");
   return (
     <article>
-      <h1 className="headline text-4xl text-ink sm:text-6xl">{r.title}</h1>
+      <h1 className="headline text-[2.5rem] text-ink sm:text-6xl">{r.title}</h1>
       <div className="mt-5 inline-flex overflow-hidden rounded-md border border-ice bg-ice-50 text-sm font-bold text-brand">
         <span className="border-r border-ice px-2 py-1">{r.version}</span>
         <span className="px-2 py-1">Latest release</span>
@@ -110,7 +113,7 @@ function Hero({ r }: { r: Release }) {
 
 function OlderCard({ r }: { r: Release }) {
   return (
-    <details className="group rounded-2xl border border-line bg-gradient-to-b from-canvas to-white">
+    <details className="lift group rounded-2xl border border-line bg-gradient-to-b from-canvas to-white">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-t-2xl border-b border-transparent px-5 py-4 group-open:border-line">
         <div className="min-w-0">
           <p className="text-lg font-bold text-ink">{r.version}<span className="ml-3 font-semibold text-slate-600">{r.title}</span></p>

@@ -9,3 +9,11 @@ PLAT-436  Upgraded Postgres minor version (internal)`;
 
 export const DEMO_PROMPT =
   "Here are this sprint's tickets. Draft client-facing release notes v2.14 for StreamCo and Nova TV in Shipped. Only include what affects each client, skip internal-only tickets, and write for a non-technical client audience.";
+
+export const DEMO_PASSWORD = "Shipped@2026";
+export const DEMO_USERS = {
+  manager: { email: "manager@shipped.demo", name: "Priya (Manager)" },
+  member: { email: "member@shipped.demo", name: "Arjun (Team)" },
+} as const;
+
+export const PORTFOLIO_URL = "https://neeraj-portfolio-orcin.vercel.app/#projects";
